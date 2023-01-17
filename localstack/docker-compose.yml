@@ -1,0 +1,60 @@
+#localstack stuff
+version: '3.6'
+services:
+  localstack:
+    container_name: "bnaqica-localstack"
+    image: localstack/localstack
+    ports:
+      - "4565-4576:4565-4576"
+      - 8001:8001
+    environment:
+      - SERVICES=sns,sqs,s3
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=8001
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR}
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  setup-resources:
+    image: mesosphere/aws-cli
+    volumes:
+      - ./dev_env:/project/dev_env
+    environment:
+      - AWS_ACCESS_KEY_ID=AKIAEXAMPLE123
+      - AWS_SECRET_ACCESS_KEY=AWSSECRETACCESSEY123
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: /bin/sh -c
+    command: >
+      "
+        sleep 15
+
+        # SNS
+        aws sns create-topic --name create-transcript-requested --endpoint-url=http://localstack:4566
+
+
+        # SQS
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name create-transcript-requested-grades-service;
+      
+
+        # Subscribing to SNS to SQS
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:create-transcript-requested --protocol sqs --notification-endpoint http://localstack:4566/queue/create-transcript-requested-grades-service
+
+        # Creating template bucket
+        aws --endpoint-url=http://localstack:4566 s3 mb s3://docs-bucket
+      "
+    depends_on:
+      - localstack
+
+volumes:
+  scripts:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PWD}/scripts'

@@ -1,0 +1,40 @@
+
+--Publish event from MyYesGo to Package Orchestrator
+aws --endpoint-url=http://localhost:4566 sns publish  --topic-arn arn:aws:sns:us-east-1:000000000000:package_creation_requested --message '{
+                                                                                                                                             "applicationId" : 70000,
+                                                                                                                                             "dealId" : "83b21f38-288a-4b07-bacb-be6677b1e669",
+                                                                                                                                             "state" : "NV",
+                                                                                                                                             "lender" : "Penfed",
+                                                                                                                                             "hasCoApplicant" : false,
+                                                                                                                                             "hasSeller" : false,
+                                                                                                                                             "hasRemoval" : false,
+                                                                                                                                             "isMilitary" : false,
+                                                                                                                                             "isNewAdditionToTitle" : false,
+                                                                                                                                             "loanType" : "Refinance",
+                                                                                                                                             "isBusiness" : false,
+                                                                                                                                             "hasReference" : false,
+                                                                                                                                             "hasACH" : false,
+                                                                                                                                             "gapProvider" : "NSD",
+                                                                                                                                             "escProvider" : "AUL",
+                                                                                                                                             "escProgram" : "Mid-Program"
+                                                                                                                                           }'
+
+--Publish event from Orchestrator to Template to get Templates for deal
+aws --endpoint-url=http://localhost:4566 sns publish  --topic-arn arn:aws:sns:us-east-1:000000000000:doc_templates_requested --message '{
+                                                                                                                                             "applicationId" : 70000,
+                                                                                                                                             "dealId" : "83b21f38-288a-4b07-bacb-be6677b1e669",
+                                                                                                                                             "state" : "NV",
+                                                                                                                                             "lender" : "Penfed",
+                                                                                                                                             "hasCoApplicant" : false,
+                                                                                                                                             "hasSeller" : false,
+                                                                                                                                             "hasRemoval" : false,
+                                                                                                                                             "isMilitary" : false,
+                                                                                                                                             "isNewAdditionToTitle" : false,
+                                                                                                                                             "loanType" : "Refinance",
+                                                                                                                                             "isBusiness" : false,
+                                                                                                                                             "hasReference" : false,
+                                                                                                                                             "hasACH" : false,
+                                                                                                                                             "gapProvider" : "NSD",
+                                                                                                                                             "escProvider" : "AUL",
+                                                                                                                                             "escProgram" : "Mid-Program"
+                                                                                                                                           }'
