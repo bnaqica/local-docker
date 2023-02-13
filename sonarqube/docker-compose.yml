@@ -2,6 +2,7 @@ version: "3"
 
 services:
   sonarqube:
+    container_name: "bnaqica-sonarqube"
     image: sonarqube
     expose:
       - 9000

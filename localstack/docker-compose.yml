@@ -35,18 +35,31 @@ services:
         sleep 15
 
         # SNS
-        aws sns create-topic --name create-transcript-requested --endpoint-url=http://localstack:4566
-
+        aws sns create-topic --name create-applicant-request --endpoint-url=http://localstack:4566
+        aws sns create-topic --name create-applicant-response--endpoint-url=http://localstack:4566
+        aws sns create-topic --name applicant-credit-pull-request --endpoint-url=http://localstack:4566
+        aws sns create-topic --name applicant-credit-pull-response --endpoint-url=http://localstack:4566
+        aws sns create-topic --name applicant-doc-request --endpoint-url=http://localstack:4566
+        aws sns create-topic --name applicant-doc-response --endpoint-url=http://localstack:4566
 
         # SQS
-        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name create-transcript-requested-grades-service;
-      
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name create-applicant-request-applicant-credit-score-svc;
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name create-applicant-response-application-ingestion-svc;
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name applicant-credit-pull-request-applicant-credit-score-svc;
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name applicant-credit-pull-response-applicant-orchestrator-svc;
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name applicant-doc-request-applicant-portal-svc;
+        aws sqs create-queue --endpoint-url=http://localstack:4566 --queue-name applicant-doc-response-applicant-orchestrator-svc;
 
         # Subscribing to SNS to SQS
-        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:create-transcript-requested --protocol sqs --notification-endpoint http://localstack:4566/queue/create-transcript-requested-grades-service
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:create-applicant-request --protocol sqs --notification-endpoint http://localstack:4566/queue/create-applicant-request-applicant-credit-score-svc
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:create-applicant-response --protocol sqs --notification-endpoint http://localstack:4566/queue/create-applicant-response-application-ingestion-svc
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:applicant-credit-pull-request --protocol sqs --notification-endpoint http://localstack:4566/queue/applicant-credit-pull-request-applicant-credit-score-svc
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:applicant-credit-pull-response --protocol sqs --notification-endpoint http://localstack:4566/queue/applicant-credit-pull-response-applicant-orchestrator-svc
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:applicant-doc-request --protocol sqs --notification-endpoint http://localstack:4566/queue/applicant-doc-request-applicant-portal-svc
+        aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:us-east-1:000000000000:applicant-doc-response --protocol sqs --notification-endpoint http://localstack:4566/queue/applicant-doc-response-applicant-orchestrator-svc
 
         # Creating template bucket
-        aws --endpoint-url=http://localstack:4566 s3 mb s3://docs-bucket
+        aws --endpoint-url=http://localstack:4566 s3 mb s3://applicant-document-bucket-local
       "
     depends_on:
       - localstack

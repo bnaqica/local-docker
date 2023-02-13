@@ -2,14 +2,14 @@ version: "3.8"
 
 services:
   postgres:
-    container_name: postgres
+    container_name: 'bnaqica-postgres'
     image: postgres:14-alpine
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: orchestrator_local
+      POSTGRES_USER: applicant_orchestrator_local
       POSTGRES_PASSWORD: local
-      POSTGRES_DB: orchestrator_db
+      POSTGRES_DB: applicant_orchestrator_db
 
     volumes:
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
