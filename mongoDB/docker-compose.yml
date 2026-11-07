@@ -1,1 +1,24 @@
-version: "3.8"
+# Local MongoDB
+#
+#   docker compose up -d       start
+#   docker compose down        stop (data is wiped - clean slate each run)
+#
+# Connect from apps on your machine:  mongodb://localhost:27017
+# Root user: admin / local. Per-service users are created by mongo-init.js.
+
+services:
+  mongodb:
+    container_name: bnaqica-mongodb
+    image: mongo:8.0
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: local
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20

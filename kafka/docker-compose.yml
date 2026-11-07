@@ -39,27 +39,16 @@ services:
       start_period: 10s
 
   # One-shot container: creates topics once the broker is healthy, then exits.
-  # Add/rename topics in the TOPICS list.
+  # The topic list lives in create-topics.sh.
   kafka-setup:
     container_name: bnaqica-kafka-setup
     image: apache/kafka:4.3.2
     depends_on:
       kafka:
         condition: service_healthy
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        TOPICS="
-          example-topic
-          example-topic-dlq
-        "
-        for topic in $$TOPICS; do
-          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 \
-            --create --if-not-exists --topic "$$topic" \
-            --partitions 3 --replication-factor 1
-        done
-        echo "Topics:"
-        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list
+    volumes:
+      - ./create-topics.sh:/create-topics.sh:ro
+    entrypoint: ["/bin/sh", "/create-topics.sh"]
     restart: "no"
 
   kafka-ui:

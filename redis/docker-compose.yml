@@ -1,0 +1,49 @@
+# Local Redis, configured as a cache
+#
+#   docker compose up -d       start
+#   docker compose down        stop (data is wiped - clean slate each run)
+#
+# Connect from apps on your machine:  redis://:local@localhost:6379
+# Connect from other containers:      redis://:local@redis:6379  (same compose network)
+# RedisInsight (browser UI):          http://localhost:5540
+
+services:
+  redis:
+    container_name: bnaqica-redis
+    image: redis:8.8-alpine
+    ports:
+      - "6379:6379"
+    command:
+      - redis-server
+      - --requirepass
+      - local
+      # Cache behaviour: cap memory and evict least-recently-used keys when full
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - allkeys-lru
+      # No persistence - it's a cache, and data is wiped on `down` anyway
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "local", "--no-auth-warning", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redisinsight:
+    container_name: bnaqica-redisinsight
+    image: redis/redisinsight:3.8.0
+    ports:
+      - "5540:5540"
+    environment:
+      # Pre-adds the local Redis as a database in the UI
+      RI_REDIS_HOST: redis
+      RI_REDIS_PORT: "6379"
+      RI_REDIS_PASSWORD: local
+      RI_REDIS_ALIAS: local-redis
+    depends_on:
+      redis:
+        condition: service_healthy

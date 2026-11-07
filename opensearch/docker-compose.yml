@@ -1,0 +1,40 @@
+# Local OpenSearch (single node, security disabled)
+#
+#   docker compose up -d       start
+#   docker compose down        stop (data is wiped - clean slate each run)
+#
+# REST API:    http://localhost:9200
+# Dashboards:  http://localhost:5601
+
+services:
+  opensearch:
+    container_name: bnaqica-opensearch
+    image: opensearchproject/opensearch:3.9.0
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: single-node          # no cluster, just one node
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      # Local only: plain HTTP, no username/password
+      DISABLE_SECURITY_PLUGIN: "true"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+      nofile: { soft: 65536, hard: 65536 }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  opensearch-dashboards:
+    container_name: bnaqica-opensearch-dashboards
+    image: opensearchproject/opensearch-dashboards:3.9.0
+    ports:
+      - "5601:5601"
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    depends_on:
+      opensearch:
+        condition: service_healthy
