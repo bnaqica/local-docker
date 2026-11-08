@@ -81,7 +81,7 @@
   ],
   "users": [
     {
-      "username": "admin.user",
+      "username": "kafkaDemoAdmin",
       "email": "admin.user@kafka-demo.local",
       "firstName": "Admin",
       "lastName": "User",
@@ -101,7 +101,7 @@
       ]
     },
     {
-      "username": "viewer.user",
+      "username": "kafkaDemoViewer",
       "email": "viewer.user@kafka-demo.local",
       "firstName": "Viewer",
       "lastName": "User",
