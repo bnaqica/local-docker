@@ -1,0 +1,27 @@
+services:
+  keycloak:
+    container_name: bnaqica-keycloak
+    image: quay.io/keycloak/keycloak:26.8.1
+    # start-dev: HTTP, relaxed hostname checks, embedded dev database (wiped on `docker compose down`).
+    # --import-realm loads every *.json in /opt/keycloak/data/import on startup (skipped if the realm exists).
+    command: ["start-dev", "--import-realm"]
+    ports:
+      - "8180:8080"   # 8080 is used by the kafka-demo-ui container; management port 9000 stays internal (sonarqube uses 9000)
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: local
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_PORT: 8080
+      # Fixed issuer for every token, so a service reaching Keycloak as http://keycloak:8080 from
+      # another container still gets iss=http://localhost:8180/realms/kafka-demo
+      KC_HOSTNAME: http://localhost:8180
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    volumes:
+      - "./realms:/opt/keycloak/data/import:ro"
+    healthcheck:
+      # The image has no curl; use bash's /dev/tcp against the management port
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s

@@ -92,6 +92,52 @@ docker exec bnaqica-redis redis-cli -a local --no-auth-warning ping    # PONG
 Spring Boot: add `spring-boot-starter-data-redis` (and `spring-boot-starter-cache` for `@Cacheable`), then
 set `spring.data.redis.host=localhost`, `spring.data.redis.port=6379`, `spring.data.redis.password=local`.
 
+## Keycloak (identity / OAuth2)
+
+Keycloak 26 in dev mode, with a `kafka-demo` realm imported from `keycloak/realms/kafka-demo-realm.json`
+on startup. To change the realm, edit that file and recreate the container (`docker compose down && docker compose up -d`).
+
+```bash
+cd keycloak
+docker compose up -d
+```
+
+| What | Address |
+|---|---|
+| Admin console | http://localhost:8180/admin (user `admin`, password `local`) |
+| Issuer (realm) | `http://localhost:8180/realms/kafka-demo` |
+| OIDC discovery | http://localhost:8180/realms/kafka-demo/.well-known/openid-configuration |
+| From other containers | `http://keycloak:8080` (tokens still carry the `localhost:8180` issuer) |
+
+Port 8180 because 8080 is used by the kafka-demo-ui container. The management port (9000, health) is
+not published, since SonarQube uses 9000.
+
+What the realm contains:
+
+| Name | Type | Notes |
+|---|---|---|
+| `kafka-demo-ui` | Public client | Authorization code + PKCE (S256). Redirects to `http://localhost:5173/*` and `http://localhost:8080/*` |
+| `kafka-demo-api` | Confidential client, secret `local` | The audience the services should require. Client credentials for service-to-service; password grant for curl testing |
+| `customer-admin`, `viewer` | Realm roles | In the token under `realm_access.roles` |
+| `admin.user` / `local` | User | Roles `customer-admin`, `viewer` |
+| `viewer.user` / `local` | User | Role `viewer` |
+
+Access tokens from both clients have `aud` containing `kafka-demo-api`.
+
+Dev mode uses an embedded database with no volume, so `docker compose down` wipes everything not in the realm file.
+Not for production: HTTP only, fixed secrets, password grant enabled.
+
+```bash
+# Get a token for a test user
+curl -s localhost:8180/realms/kafka-demo/protocol/openid-connect/token \
+  -d grant_type=password -d client_id=kafka-demo-api -d client_secret=local \
+  -d username=admin.user -d password=local
+```
+
+Spring Boot resource server: add `spring-boot-starter-oauth2-resource-server`, then set
+`spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/kafka-demo` and
+`spring.security.oauth2.resourceserver.jwt.audiences=kafka-demo-api`.
+
 ## Postgres
 
 ```bash
