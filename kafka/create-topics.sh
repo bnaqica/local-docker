@@ -12,9 +12,6 @@ PARTITIONS=3
 REPLICATION_FACTOR=1   # single broker
 
 TOPICS="
-  example-topic
-  example-topic-dlq
-
   customer-events
   customer-events-dlq
 
