@@ -13,7 +13,7 @@
         "description": "Create and read customers"
       },
       {
-        "name": "viewer",
+        "name": "customer-viewer",
         "description": "Read-only access to customers, emails and analytics"
       }
     ]
@@ -115,7 +115,7 @@
         }
       ],
       "realmRoles": [
-        "viewer",
+        "customer-viewer",
         "default-roles-kafka-demo"
       ]
     }

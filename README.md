@@ -134,7 +134,7 @@ curl -s localhost:8180/realms/kafka-demo/protocol/openid-connect/token \
   -d username=admin.user -d password=local
 ```
 
-Spring Boot resource server: add `spring-boot-starter-oauth2-resource-server`, then set
+Spring Boot resource server: add `spring-boot-starter-security-oauth2-resource-server`, then set
 `spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8180/realms/kafka-demo` and
 `spring.security.oauth2.resourceserver.jwt.audiences=kafka-demo-api`.
 
