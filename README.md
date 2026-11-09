@@ -118,20 +118,21 @@ What the realm contains:
 |---|---|---|
 | `kafka-demo-ui` | Public client | Authorization code + PKCE (S256). Redirects to `http://localhost:5173/*` and `http://localhost:8080/*` |
 | `kafka-demo-api` | Confidential client, secret `local` | The audience the services should require. Client credentials for service-to-service; password grant for curl testing |
-| `customer-admin`, `viewer` | Realm roles | In the token under `realm_access.roles` |
-| `admin.user` / `local` | User | Roles `customer-admin`, `viewer` |
-| `viewer.user` / `local` | User | Role `viewer` |
+| `customer-admin`, `customer-viewer` | Realm roles | In the token under `realm_access.roles` |
+| `kafkaDemoAdmin` / `local` | User | Role `customer-admin` |
+| `kafkaDemoViewer` / `local` | User | Role `customer-viewer` |
 
 Access tokens from both clients have `aud` containing `kafka-demo-api`.
 
 Dev mode uses an embedded database with no volume, so `docker compose down` wipes everything not in the realm file.
+The realm file is only imported into a fresh database, so after changing it run `docker compose up -d --force-recreate` in `keycloak/`.
 Not for production: HTTP only, fixed secrets, password grant enabled.
 
 ```bash
 # Get a token for a test user
 curl -s localhost:8180/realms/kafka-demo/protocol/openid-connect/token \
   -d grant_type=password -d client_id=kafka-demo-api -d client_secret=local \
-  -d username=admin.user -d password=local
+  -d username=kafkaDemoAdmin -d password=local
 ```
 
 Spring Boot resource server: add `spring-boot-starter-security-oauth2-resource-server`, then set
@@ -173,5 +174,5 @@ Connection string: `mongodb://<user>:local@localhost:27017/<db>?authSource=<db>`
 
 ## Kafka Demo topics
 
-`kafka-setup` creates `customer-events`, `email-events` and a `-dlq` topic for each, used by the
+`kafka-setup` creates `customer-change-event` and its `-dlq` topic, used by the
 kafka-demo-customer, kafka-demo-email and kafka-demo-analytics services.

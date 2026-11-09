@@ -10,11 +10,11 @@
     "realm": [
       {
         "name": "customer-admin",
-        "description": "Create and read customers"
+        "description": "Full access to customers, phones, idempotency keys and emails; can change analytics records"
       },
       {
         "name": "customer-viewer",
-        "description": "Read-only access to customers, emails and analytics"
+        "description": "Read-only access to customers and analytics"
       }
     ]
   },
@@ -96,7 +96,6 @@
       ],
       "realmRoles": [
         "customer-admin",
-        "viewer",
         "default-roles-kafka-demo"
       ]
     },

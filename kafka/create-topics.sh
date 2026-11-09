@@ -12,11 +12,8 @@ PARTITIONS=3
 REPLICATION_FACTOR=1   # single broker
 
 TOPICS="
-  customer-events
-  customer-events-dlq
-
-  email-events
-  email-events-dlq
+  customer-change-event
+  customer-change-event-dlq
 "
 
 for topic in $TOPICS; do
