@@ -1,6 +1,7 @@
 {
   "realm": "kafka-demo",
   "displayName": "Kafka Demo (local)",
+  "loginTheme": "kafka-demo",
   "enabled": true,
   "sslRequired": "none",
   "registrationAllowed": false,

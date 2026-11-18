@@ -1,0 +1,113 @@
+{
+  "enabled": true,
+  "sslRequired": "none",
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "accessTokenLifespan": 300,
+  "bruteForceProtected": true,
+  "permanentLockout": true,
+  "maxTemporaryLockouts": 3,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "eventsEnabled": true,
+  "eventsExpiration": 2592000,
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": false,
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@crm.local",
+    "fromDisplayName": "CRM Demo"
+  },
+  "realm": "crm-admin",
+  "displayName": "CRM Admin",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "passwordPolicy": "length(12) and notUsername and notEmail",
+  "ssoSessionIdleTimeout": 900,
+  "ssoSessionMaxLifespan": 28800,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "UMS administrator"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "admin-app",
+      "name": "Admin UI",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:5175/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5175"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5175/*"
+      }
+    },
+    {
+      "clientId": "ums-admin",
+      "description": "UMS admin-account guardrails in crm-admin",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "ums-admin-local-secret",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "defaultClientScopes": [
+        "roles",
+        "basic",
+        "service_account"
+      ],
+      "optionalClientScopes": []
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.local",
+      "email": "admin.local@crm.local",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Local",
+      "lastName": "Admin",
+      "realmRoles": [
+        "admin"
+      ],
+      "requiredActions": [
+        "CONFIGURE_TOTP"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Local-admin-123",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "service-account-ums-admin",
+      "enabled": true,
+      "serviceAccountClientId": "ums-admin",
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users",
+          "query-users"
+        ]
+      }
+    }
+  ]
+}

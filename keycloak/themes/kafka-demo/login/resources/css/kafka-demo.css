@@ -1,0 +1,40 @@
+/* Slate and blue, the same tokens as kafka-demo-ui/src/index.css */
+:root {
+  --kd-bg: #f8fafc;
+  --kd-surface: #ffffff;
+  --kd-text: #0f172a;
+  --kd-muted: #64748b;
+  --kd-border: #e2e8f0;
+  --kd-accent: #2563eb;
+  --kd-accent-hover: #1d4ed8;
+
+  /* PatternFly draws buttons, links and focus rings from these */
+  --pf-global--primary-color--100: var(--kd-accent);
+  --pf-global--primary-color--200: var(--kd-accent-hover);
+  --pf-global--link--Color: var(--kd-accent);
+  --pf-global--link--Color--hover: var(--kd-accent-hover);
+}
+
+/* A neutral page instead of the dark polygon picture, at every screen size */
+.login-pf body {
+  background: var(--kd-bg);
+  color: var(--kd-text);
+}
+
+#kc-header,
+#kc-header-wrapper {
+  color: var(--kd-text);
+}
+
+.card-pf {
+  background: var(--kd-surface);
+  border: 1px solid var(--kd-border);
+  border-top: 4px solid var(--kd-accent);
+  border-radius: 10px;
+}
+
+#kc-info-wrapper,
+.kc-login-tooltip,
+.pf-c-form__helper-text {
+  color: var(--kd-muted);
+}

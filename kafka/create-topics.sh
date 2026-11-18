@@ -14,6 +14,10 @@ REPLICATION_FACTOR=1   # single broker
 TOPICS="
   customer-change-event
   customer-change-event-dlq
+  ums-user-events
+  audit-events
+  keycloak-events
+  keycloak-events-dlq
 "
 
 for topic in $TOPICS; do

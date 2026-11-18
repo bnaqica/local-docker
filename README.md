@@ -126,6 +126,35 @@ Access tokens from both clients have `aud` containing `kafka-demo-api`.
 
 Dev mode uses an embedded database with no volume, so `docker compose down` wipes everything not in the realm file.
 The realm file is only imported into a fresh database, so after changing it run `docker compose up -d --force-recreate` in `keycloak/`.
+
+### CRM demo realms
+
+`crm-admin-realm.json`, `crm-internal-realm.json` and `portal-realm.json` are generated for the CRM demo
+(see the architecture in `crm-demo-user-management-service`). Each UI signs in to one realm, and each service trusts one realm.
+
+| Realm | Client | Type | Notes |
+|---|---|---|---|
+| `crm-admin` | `admin-app` | Public, PKCE | Admin UI on `http://localhost:5175` |
+| `crm-internal` | `crm-app` | Public, PKCE | CRM UI on `http://localhost:5173`; tokens carry audience `crm-api` |
+| `crm-internal` | `crm-api` | Resource server | Holds CRM permissions as client roles |
+| `crm-internal` | `ums-internal` | Service account, secret `ums-internal-local-secret` | `manage-users`, `view-users`, `query-groups` only |
+| `crm-internal` | `crm-promoter` | Service account, secret `crm-promoter-local-secret` | Scope `ums:promote` |
+| `crm-internal` | `core-service` | Service account, secret `core-service-local-secret` | Scopes `ums:team-scope`, `ums:catalog` |
+| `portal` | `portal-app` | Public, PKCE | Portal on `http://localhost:5174`; self-registration on, email verification on |
+| `portal` | `ums-portal` | Service account, secret `ums-portal-local-secret` | `manage-users`, `view-users`, `query-groups` only |
+
+`crm-admin` has the user `admin.local` / `Local-admin-123` with realm role `admin`, who must set up TOTP on first login.
+In `crm-internal` and `portal` the username is the email. All three realms: passwords of at least 12 characters, brute-force lockout (permanent after 3 temporary lockouts),
+5-minute access tokens, login and admin events kept for 30 days. `crm-admin` sessions idle out after 15 minutes.
+Not yet configured: breached-password checks, portal CAPTCHA, mandatory MFA for portal users, and fine-grained admin
+permissions narrowing the service accounts.
+
+Keycloak sends email through Mailpit, which catches everything: open http://localhost:8025 to read invites and
+password-reset emails.
+
+The sign-in page uses the `kafka-demo` login theme in `keycloak/themes/kafka-demo`. It extends Keycloak's own login theme
+and recolours it to match kafka-demo-ui (`resources/css/kafka-demo.css`). `start-dev` doesn't cache themes, so CSS edits
+show on reload; changing `theme.properties` needs a restart.
 Not for production: HTTP only, fixed secrets, password grant enabled.
 
 ```bash
@@ -152,6 +181,9 @@ docker compose up -d
 | Database | User | Used by |
 |---|---|---|
 | `kafka_demo_customer_db` | `kafka_demo_customer_local` | kafka-demo-customer |
+| `crm_demo_core_service_db` | `crm_demo_core_service_local` | crm-demo-core-service |
+| `crm_demo_customer_portal_service_db` | `crm_demo_customer_portal_service_local` | crm-demo-customer-portal-service |
+| `crm_demo_user_management_service_db` | `crm_demo_user_management_service_local` | crm-demo-user-management-service |
 
 There is no volume, so `docker compose down` wipes the data and the init script runs again on the next `up`.
 

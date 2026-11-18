@@ -16,8 +16,12 @@ services:
       # another container still gets iss=http://localhost:8180/realms/kafka-demo
       KC_HOSTNAME: http://localhost:8180
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    depends_on:
+      - mailpit
     volumes:
       - "./realms:/opt/keycloak/data/import:ro"
+      # The kafka-demo login theme; start-dev doesn't cache themes, so CSS edits show on reload
+      - "./themes/kafka-demo:/opt/keycloak/themes/kafka-demo:ro"
     healthcheck:
       # The image has no curl; use bash's /dev/tcp against the management port
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '\"UP\"' <&3"]
@@ -25,3 +29,10 @@ services:
       timeout: 5s
       retries: 20
       start_period: 30s
+
+  # Catches every email Keycloak sends (invites, password resets, verification). Inbox: http://localhost:8025
+  mailpit:
+    container_name: bnaqica-mailpit
+    image: axllent/mailpit:v1.27.10
+    ports:
+      - "8025:8025"
