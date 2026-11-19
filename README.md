@@ -149,6 +149,14 @@ In `crm-internal` and `portal` the username is the email. All three realms: pass
 Not yet configured: breached-password checks, portal CAPTCHA, mandatory MFA for portal users, and fine-grained admin
 permissions narrowing the service accounts.
 
+Login and admin events of the three CRM realms are published to the Kafka topic `keycloak-events` by the event
+listener in `keycloak/event-listener` (see its README). Start Kafka before Keycloak (Keycloak joins Kafka's network
+to reach `kafka:29092`), and build the listener once before the first start:
+
+```bash
+cd keycloak/event-listener && ./gradlew build
+```
+
 Keycloak sends email through Mailpit, which catches everything: open http://localhost:8025 to read invites and
 password-reset emails.
 

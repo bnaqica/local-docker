@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    // Bundles kafka-clients into the provider jar; Keycloak only loads what is in providers/
+    id 'com.gradleup.shadow' version '9.6.1'
+}
+
+group = 'com.bnaqica'
+version = '0.1.0'
+
+// Must match the Keycloak image in ../docker-compose.yml
+def keycloakVersion = '26.8.1'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Keycloak 26 runs on Java 21
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Provided by Keycloak at runtime
+    compileOnly "org.keycloak:keycloak-core:${keycloakVersion}"
+    compileOnly "org.keycloak:keycloak-server-spi:${keycloakVersion}"
+    compileOnly "org.keycloak:keycloak-server-spi-private:${keycloakVersion}"
+    compileOnly 'org.jboss.logging:jboss-logging:3.6.1.Final'
+
+    // Same version as the local broker (local-docker/kafka)
+    implementation 'org.apache.kafka:kafka-clients:4.3.2'
+
+    testImplementation platform('org.junit:junit-bom:6.1.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core:3.27.6'
+    testImplementation 'org.mockito:mockito-core:5.20.0'
+    testImplementation 'org.jboss.logging:jboss-logging:3.6.1.Final'
+    testImplementation "org.keycloak:keycloak-core:${keycloakVersion}"
+    testImplementation "org.keycloak:keycloak-server-spi:${keycloakVersion}"
+    testImplementation "org.keycloak:keycloak-server-spi-private:${keycloakVersion}"
+    testImplementation platform('org.testcontainers:testcontainers-bom:2.0.5')
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:testcontainers-kafka'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.17'
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier = ''
+    // Keycloak already has SLF4J; a second copy would clash
+    dependencies {
+        exclude(dependency('org.slf4j:.*'))
+    }
+    mergeServiceFiles()
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('shadowJar')
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    // The integration test loads the built provider jar into a real Keycloak
+    dependsOn tasks.named('shadowJar')
+    systemProperty 'providerJar', tasks.named('shadowJar').get().archiveFile.get().asFile.absolutePath
+}

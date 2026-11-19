@@ -13,7 +13,7 @@
   "eventsEnabled": true,
   "eventsExpiration": 2592000,
   "adminEventsEnabled": true,
-  "adminEventsDetailsEnabled": false,
+  "adminEventsDetailsEnabled": true,
   "smtpServer": {
     "host": "mailpit",
     "port": "1025",
@@ -109,5 +109,9 @@
         ]
       }
     }
+  ],
+  "eventsListeners": [
+    "jboss-logging",
+    "kafka"
   ]
 }

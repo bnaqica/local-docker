@@ -52,7 +52,9 @@ common = {"enabled": True, "sslRequired": "none"  # local development over plain
           "duplicateEmailsAllowed": False, "accessTokenLifespan": 300, "bruteForceProtected": True,
           "permanentLockout": True, "maxTemporaryLockouts": 3, "failureFactor": 5,
           "waitIncrementSeconds": 60, "maxFailureWaitSeconds": 900, "eventsEnabled": True,
-          "eventsExpiration": 2592000, "adminEventsEnabled": True, "adminEventsDetailsEnabled": False,
+          "eventsExpiration": 2592000, "adminEventsEnabled": True,
+          # Representations let the central audit record before/after; it strips secrets before storing
+          "adminEventsDetailsEnabled": True,
           "smtpServer": smtp}
 pw_policy = "length(12) and notUsername and notEmail"
 
@@ -130,6 +132,12 @@ portal = {**common, "realm": "portal", "displayName": "Customer Portal",
 if test:
     portal["clients"].append(test_client())
     portal["users"].append(test_user("test-portal@acme.example", "test-portal@acme.example", ["external-standard"]))
+
+# Local realms publish their events to Kafka through the event listener in ../event-listener.
+# Test realms leave it out: the services' Testcontainers Keycloak doesn't load that provider.
+if not test:
+    for r in (admin, internal, portal):
+        r["eventsListeners"] = ["jboss-logging", "kafka"]
 
 for r in (admin, internal, portal):
     with open(os.path.join(out, f"{r['realm']}-realm.json"), "w") as f:

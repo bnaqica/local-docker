@@ -1,0 +1,19 @@
+{
+  "realm": "events-test",
+  "enabled": true,
+  "sslRequired": "none",
+  "eventsEnabled": true,
+  "eventsListeners": ["jboss-logging", "kafka"],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "clients": [
+    { "clientId": "test-client", "enabled": true, "publicClient": true, "standardFlowEnabled": false, "directAccessGrantsEnabled": true }
+  ],
+  "users": [
+    {
+      "username": "ana", "email": "ana@example.com", "firstName": "Ana", "lastName": "Test",
+      "emailVerified": true, "enabled": true,
+      "credentials": [{ "type": "password", "value": "Test-password-123", "temporary": false }]
+    }
+  ]
+}
