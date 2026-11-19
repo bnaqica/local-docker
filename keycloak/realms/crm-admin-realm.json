@@ -92,7 +92,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "Local-admin-123",
+          "value": "local",
           "temporary": false
         }
       ]
