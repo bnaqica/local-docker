@@ -7,9 +7,9 @@
 
 set -e
 
-BOOTSTRAP_SERVER="kafka:29092"
-PARTITIONS=3
-REPLICATION_FACTOR=1   # single broker
+BOOTSTRAP_SERVER="kafka-1:29092,kafka-2:29092,kafka-3:29092,kafka-4:29092"
+PARTITIONS=5
+REPLICATION_FACTOR=4   # one replica on each of the 4 brokers
 
 TOPICS="
   customer-change-event

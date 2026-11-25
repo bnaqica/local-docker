@@ -4,7 +4,7 @@ Docker environments for local development. Each folder is a standalone `docker c
 
 ## Kafka
 
-Single-broker Kafka (KRaft, no ZooKeeper) with Kafka UI and a topic-setup container.
+4-broker Kafka cluster (KRaft, no ZooKeeper; kafka-1..3 are also controllers) with Kafka UI and a topic-setup container.
 
 ```bash
 cd kafka
@@ -14,8 +14,8 @@ docker compose down      # stop (data is wiped)
 
 | What | Address |
 |---|---|
-| Bootstrap servers (apps on your machine) | `localhost:9092` |
-| Bootstrap servers (other containers) | `kafka:29092` |
+| Bootstrap servers (apps on your machine) | `localhost:9092,localhost:9093,localhost:9094,localhost:9095` |
+| Bootstrap servers (other containers) | `kafka:29092` (alias of `kafka-1`), or `kafka-1..kafka-4:29092` |
 | Kafka UI | http://localhost:8085 |
 
 Topics are created by the `kafka-setup` service, which runs `kafka/create-topics.sh` — edit the
